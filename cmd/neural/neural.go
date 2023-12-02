@@ -5,12 +5,9 @@ import (
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/application/services/layer/neuron/synapse"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/application/services/solver"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/domain/entities"
-	"log"
 )
 
 func Init(inputLength int) (*services.Neural, *services.OnlineTrainer) {
-	log.Println("Starting api server")
-
 	// Init services
 	neuralNetService := services.NewNeural(&entities.Config{
 		Inputs:     inputLength,

@@ -2,7 +2,7 @@ package ports
 
 import (
 	"context"
-	ent "main/domains/auth/domain/entities"
+	ent "main/domains/brain/domain/entities"
 )
 
 // IPostgresqlRepository Auth Domain postgresql interface

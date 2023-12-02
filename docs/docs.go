@@ -18,7 +18,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/login": {
+        "/brain/login": {
             "post": {
                 "description": "Login process",
                 "consumes": [
@@ -52,7 +52,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/register": {
+        "/brain/register": {
             "post": {
                 "description": "Registration process",
                 "consumes": [

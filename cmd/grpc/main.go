@@ -5,7 +5,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"log"
 	"main/config"
-	authRepos "main/domains/auth/infrastructure/repository"
+	authRepos "main/domains/brain/infrastructure/repository"
 	"main/pkg/databases/postgresql"
 	"main/pkg/logger"
 	"main/pkg/server"

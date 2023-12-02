@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
-	ent "main/domains/auth/domain/entities"
+	ent "main/domains/brain/domain/entities"
 	"main/internal/auth/domain/ports"
 	cm "main/pkg/utils/common"
 )
@@ -27,10 +27,10 @@ func (r *postgresqlRepo) Register(ctx context.Context, req ent.RegisterReq) (rec
 	var auth_id int64
 
 	if req.UserType == 1 {
-		query = `INSERT INTO human_resources.auth (src, company_name, user_title, user_name, user_pass) VALUES ($1,$2,$3,$4,$5) RETURNING auth_id`
+		query = `INSERT INTO human_resources.brain (src, company_name, user_title, user_name, user_pass) VALUES ($1,$2,$3,$4,$5) RETURNING auth_id`
 		errDb = r.db.QueryRow(ctx, query, req.Src, req.CompanyName, req.UserTitle, req.UserName, req.UserPass).Scan(&auth_id)
 	} else {
-		query = `INSERT INTO candidate.auth (src, user_title, user_name, user_pass) VALUES ($1,$2,$3,$4) RETURNING auth_id`
+		query = `INSERT INTO candidate.brain (src, user_title, user_name, user_pass) VALUES ($1,$2,$3,$4) RETURNING auth_id`
 		errDb = r.db.QueryRow(ctx, query, req.Src, req.UserTitle, req.UserName, req.UserPass).Scan(&auth_id)
 	}
 
@@ -54,10 +54,10 @@ func (r *postgresqlRepo) Login(ctx context.Context, req ent.LoginReq) (record in
 	var errDb error
 
 	if req.UserType == 1 {
-		query = `SELECT auth_id, lang, parent_id, user_type, acc_type, COALESCE(company_name,''), user_title, user_name, is_demo, unique_id, status FROM human_resources.auth WHERE user_name=$1 AND user_pass=$2`
+		query = `SELECT auth_id, lang, parent_id, user_type, acc_type, COALESCE(company_name,''), user_title, user_name, is_demo, unique_id, status FROM human_resources.brain WHERE user_name=$1 AND user_pass=$2`
 		errDb = r.db.QueryRow(ctx, query, req.UserName, req.UserPass).Scan(&auth.AuthId, &auth.Lang, &auth.ParentId, &auth.UserType, &auth.AccountType, &auth.CompanyName, &auth.UserTitle, &auth.UserName, &auth.IsDemo, &auth.UniqueId, &auth.Status)
 	} else {
-		query = `SELECT auth_id, lang, manager_id, user_type, user_title, user_name, unique_id, status FROM candidate.auth WHERE user_name=$1 AND user_pass=$2`
+		query = `SELECT auth_id, lang, manager_id, user_type, user_title, user_name, unique_id, status FROM candidate.brain WHERE user_name=$1 AND user_pass=$2`
 		errDb = r.db.QueryRow(ctx, query, req.UserName, req.UserPass).Scan(&auth.AuthId, &auth.Lang, &auth.ManagerId, &auth.UserType, &auth.UserTitle, &auth.UserName, &auth.UniqueId, &auth.Status)
 	}
 

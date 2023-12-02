@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 	"main/config"
-	ent "main/domains/auth/domain/entities"
+	ent "main/domains/brain/domain/entities"
 	"main/internal/auth/domain/ports"
 	"main/pkg/logger"
 )

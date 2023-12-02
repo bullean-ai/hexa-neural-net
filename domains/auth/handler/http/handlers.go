@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/gofiber/fiber/v2"
 	"main/config"
-	ent "main/domains/auth/domain/entities"
+	ent "main/domains/brain/domain/entities"
 	"main/internal/auth/domain/ports"
 	"main/pkg/logger"
 	cm "main/pkg/utils/common"
@@ -38,7 +38,7 @@ func NewHttpHandler(ctx context.Context, cfg *config.Config, service ports.IServ
 // @Accept json
 // @Produce json
 // @Success 200 {object} entities.HandlerResponse{}
-// @Router /auth/register [post]
+// @Router /brain/register [post]
 func (h handlerHttp) Register(c *fiber.Ctx) error {
 	dat := ent.RegisterReq{}
 
@@ -86,7 +86,7 @@ func (h handlerHttp) Register(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Success 200 {object} entities.HandlerResponse{}
-// @Router /auth/login [post]
+// @Router /brain/login [post]
 func (h handlerHttp) Login(c *fiber.Ctx) error {
 	dat := ent.LoginReq{}
 

@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.28.1
 // 	protoc        v3.21.10
-// source: auth/auth.proto
+// source: brain/brain.proto
 
 package authService
 

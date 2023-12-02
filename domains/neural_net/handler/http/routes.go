@@ -7,11 +7,11 @@ import (
 
 // MapRoutes Auth Domain routes
 func MapRoutes(h ports.IHandlers, router fiber.Router) {
-	//neuralNet := router.Group("/auth")
+	//neuralNet := router.Group("/brain")
 
 	/* Example HTTP handler Methods */
-	//auth.Get("/:id", h.Login)
-	//auth.Delete("/:id", h.Login)
-	//auth.Put("/:id", h.Login)
+	//brain.Get("/:id", h.Login)
+	//brain.Delete("/:id", h.Login)
+	//brain.Put("/:id", h.Login)
 
 }
