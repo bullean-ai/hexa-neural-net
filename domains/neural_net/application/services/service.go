@@ -145,7 +145,7 @@ func (w *serviceNeuralNet) Predict(
 
 	testData, _, _ := ChartDataRedisParser(candles, percentage, maxIndex)
 	signalRes := testData[len(testData)-1]
-	calc(n, trainer, candles[len(candles)-1], signalRes, profit, percentage, commission)
+	Calc(n, trainer, candles[len(candles)-1], signalRes, profit, percentage, commission)
 	return
 }
 
@@ -163,12 +163,12 @@ func (w *serviceNeuralNet) PredictAll(
 	fmt.Println(testData)
 	//signalRes := testData[len(testData)-1]
 	for _, signalRes := range testData {
-		calc(n, trainer, candles[len(candles)-1], signalRes, profit, percentage, commission)
+		Calc(n, trainer, candles[len(candles)-1], signalRes, profit, percentage, commission)
 	}
 	return
 }
 
-func calc(n *Neural, trainer *OnlineTrainer, candle entities.Candle, signalRes entities.Example, profit *entities.CalculateProfit, percentage, commission float64) {
+func Calc(n *Neural, trainer *OnlineTrainer, candle entities.Candle, signalRes entities.Example, profit *entities.CalculateProfit, percentage, commission float64) {
 	resp := n.Predict(signalRes.Input)
 	firstRes := signalRes.Response[0]
 	secondRes := signalRes.Response[1]
@@ -278,7 +278,7 @@ func ChartDataParser(arr []map[string]interface{}, percentage float64) (Linedata
 		changeLine = append(changeLine, input)
 		//Linedata = append(Linedata, input)
 	}
-	_, longSignals, shortSignals, maxIndex = calculateMaxPercentageDiffIndexes(changeLine, percentage)
+	_, longSignals, shortSignals, maxIndex = CalculateMaxPercentageDiffIndexes(changeLine, percentage)
 
 	for i := maxIndex; i < len(changeLine); i++ {
 		var inputExample entities.Example
@@ -305,7 +305,7 @@ func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex in
 		changeLine = append(changeLine, input)
 		//Linedata = append(Linedata, input)
 	}
-	_, longSignals, shortSignals, maxIndexRes = calculateMaxPercentageDiffIndexes(changeLine, percentage)
+	_, longSignals, shortSignals, maxIndexRes = CalculateMaxPercentageDiffIndexes(changeLine, percentage)
 
 	if maxIndex == 0 {
 		maxIndex = maxIndexRes
@@ -330,7 +330,7 @@ func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex in
 	return
 }
 
-func calculateMaxPercentageDiffIndexes(data []float64, percentage float64) (signalPoints, longSignals, shortSignals []int, maxIndex int) {
+func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (signalPoints, longSignals, shortSignals []int, maxIndex int) {
 	indexCount := 0
 	maxIndex = math.MinInt64
 
