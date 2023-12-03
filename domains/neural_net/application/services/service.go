@@ -300,11 +300,7 @@ func ChartDataParser(arr []map[string]interface{}, percentage float64) (Linedata
 }
 func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex int) (Linedata Examples, changeLine []float64, maxIndexRes int) {
 	var longSignals, shortSignals []int
-	for i := 1; i < len(arr); i++ {
-		input := (arr[i].Close - arr[i-1].Close) / arr[i-1].Close * 100
-		changeLine = append(changeLine, input)
-		//Linedata = append(Linedata, input)
-	}
+	changeLine = CandleToChangePercent(arr)
 	_, longSignals, shortSignals, maxIndexRes = CalculateMaxPercentageDiffIndexes(changeLine, percentage)
 
 	if maxIndex == 0 {
@@ -327,6 +323,15 @@ func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex in
 		Linedata = append(Linedata, inputExample)
 	}
 
+	return
+}
+
+func CandleToChangePercent(arr []entities.Candle) (changeLine []float64) {
+	for i := 1; i < len(arr); i++ {
+		input := (arr[i].Close - arr[i-1].Close) / arr[i-1].Close * 100
+		changeLine = append(changeLine, input)
+		//Linedata = append(Linedata, input)
+	}
 	return
 }
 
