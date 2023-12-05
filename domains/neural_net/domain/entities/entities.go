@@ -153,4 +153,5 @@ type CalculateProfit struct {
 	TestCount        int64     `json:"test_count"`
 	BuyPrice         Candle    `json:"buy_price"`
 	SellPrice        Candle    `json:"sell_price"`
+	Iterations       int       `json:"iterations"`
 }

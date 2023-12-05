@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/bullean-ai/hexa-neural-net/config"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/application/services/layer/neuron/synapse"
@@ -38,48 +37,32 @@ func NewNeuralNetService(cfg *config.Config, redisRepo ports.IRedisRepository, l
 func (w *serviceNeuralNet) Train() {
 	rand.Seed(time.Now().UnixNano())
 	//percentage := .0815 // BNBUSDT
-	percentage := .05 // BTCUSDT 0.005
+	percentage := .1 // BTCUSDT 0.005
 	pair := "BTCUSDT"
-	commission := .1
+	commission := .0
+	iterations := 10
 	var trainData []entities.Candle
 
 	trainData, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:10000"))
 
-	if trainData == nil || err != nil {
-		for i := 0; i < 10000; {
-			time.Sleep(10 * time.Millisecond)
-			candle, _, _ := w.redisRepo.GetCandleData(pair)
-			if len(trainData) > 0 && candle.Close != trainData[len(trainData)-1].Close {
-				trainData = append(trainData, candle)
-				i++
-				println(i)
-			} else if len(trainData) == 0 {
-				trainData = append(trainData, candle)
-				i++
-			}
-		}
-		jsonRes, _ := json.Marshal(trainData)
-		w.redisRepo.SetCache(fmt.Sprintf("%s:%s", pair, "OPEN:10000"), jsonRes)
-
-	}
-	trainData = trainData[9000:]
+	//trainData = trainData[2000:]
 	lineData, _, maxIndex := ChartDataRedisParser(trainData, percentage, 0)
 	//maxIndex = int(math.Round(float64(maxIndex) * 1.2))
 	fmt.Println("maxindex: ", maxIndex)
 	n := NewNeural(&entities.Config{
 		Inputs:     maxIndex,
-		Layout:     []int{15, 30, 60, 30, 15, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
+		Layout:     []int{15, 30, 60, 60, 60, 30, 15, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
 		Activation: entities.ActivationTanh,
 		Mode:       entities.ModeMultiClass,
-		Weight:     synapse.NewNormal(1e-15, 1e-2),
+		Weight:     synapse.NewNormal(1e-15, 0),
 		Bias:       true,
 	})
 
-	trainer := NewTrainer(solver.NewAdam(0.0001, 0, 0, 1e-15), 1)
-	trainer.Train(n, lineData, lineData, 1000)
+	trainer := NewTrainer(solver.NewAdam(0.0005, 0, 0, 1e-15), 1)
+	trainer.Train(n, lineData, lineData, iterations)
 
 	var candles []entities.Candle
-	candles = trainData[len(trainData)-maxIndex-5:]
+	candles, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:2500"))
 	//candles, _, _, err := w.redisRepo.GetCandlesData("BTCUSDT", 5)
 	/*
 		for i := 0; i < maxIndex+2; {
@@ -100,6 +83,7 @@ func (w *serviceNeuralNet) Train() {
 	*/
 	CalculateProfit := entities.CalculateProfit{}
 	CalculateProfit.Profit = 100
+	CalculateProfit.Iterations = iterations
 	fmt.Println(candles[len(candles)-1])
 	w.PredictAll(n, trainer, candles, percentage, commission, maxIndex, &CalculateProfit)
 	//avgProfit, profit, longNum, lastSignal, longPercent, errorRate, testCount = w.Predict(n, trainer, candles[len(candles)-(maxIndex+1):], percentage, 1, avgProfit, profit, longNum, lastSignal, longPercent, errorRate, testCount)
@@ -193,9 +177,11 @@ func Calc(n *Neural, trainer *OnlineTrainer, candle entities.Candle, signalRes e
 		profit.Profit += profit.Profit * (profit.LongPercent / 100)
 		bestLongPos := CalcBestLongPos(profit.ShortSignalInput, percentage, commission)
 		if profit.LongPercent < commission && profit.TestCount > 1 {
+			profit.Iterations += 1
+			bestLongPos.Shuffle()
 			for _, pos := range bestLongPos {
 				trainer.FeedForward(n, pos)
-				trainer.BackPropagate(n, pos, 1)
+				trainer.BackPropagate(n, pos, profit.Iterations)
 			}
 		}
 		profit.SellPrice = candle
@@ -217,7 +203,7 @@ func Calc(n *Neural, trainer *OnlineTrainer, candle entities.Candle, signalRes e
 
 }
 
-func CalcBestLongPos(data []entities.Example, percentage, commission float64) (bestLong []entities.Example) {
+func CalcBestLongPos(data []entities.Example, percentage, commission float64) (bestLong Examples) {
 	bestLong = make([]entities.Example, len(data))
 	buyPos := 0
 	sellPos := 0
@@ -264,6 +250,14 @@ func CalcBestLongPos(data []entities.Example, percentage, commission float64) (b
 	for j := buyPos; j < sellPos; j++ {
 		bestLong[j].Response[0] = 1
 		bestLong[j].Response[1] = 0
+	}
+
+	if buyPos == 0 && sellPos == 0 {
+		for i, _ := range bestLong {
+			bestLong[i].Input = data[i].Input
+			bestLong[i].Response[0] = 1
+			bestLong[i].Response[1] = 0
+		}
 	}
 
 	//}
@@ -343,6 +337,7 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 	buyPos := len(data) - 2
 	sellPos := len(data) - 1
 	isDone := false
+	isDoneCount := 0
 	for i := len(data) - 3; i >= 0; i-- {
 
 		counter := 0
@@ -363,17 +358,21 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 					minIndex = k - j
 				}
 				if buyPercent > percentage {
-					maxI = k - j
 					if j > 0 {
 						buyPos = j - 1
 					} else {
 						buyPos = j
 					}
-					sellPos = k
+					if isDoneCount == 0 {
+						sellPos = k
+					}
+					maxI = sellPos - j
 					counter = 0
 					buyPercent = 0
 					j = k
 					isDone = true
+					isStarted = false
+					isDoneCount += 1
 					break
 				}
 
@@ -382,14 +381,15 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 			if maxI > maxIndex {
 				maxIndex = maxI
 			}
-			if isDone {
+			if isDone && isDoneCount == 3 {
+				signalPoints[buyPos] = 1
+				signalPoints[sellPos] = -1
 				isDone = false
+				isDoneCount = 0
 				break
 			}
 		}
 		indexCount += 1
-		signalPoints[buyPos] = 1
-		signalPoints[sellPos] = -1
 	}
 
 	lastSignal := 1
@@ -418,6 +418,7 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 			shortSignals = append(shortSignals, 1)
 		}
 	}
+	maxIndex = 2498
 	return
 }
 

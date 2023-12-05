@@ -1,6 +1,6 @@
 server:
   PROJECT_NAME: "Auth Service"
-  SERVICE_NAME: "auth-broker"
+  SERVICE_NAME: "brain-broker"
   APP_ENV: "dev"
   APP_DEBUG: true
   TIMEOUT: 15
@@ -81,12 +81,12 @@ mongodb:
   MONGO_DB_ATLAS: "mongodb+srv://{USER_NAME}:{USER_PASS}@{DB_HOST}/{DEFAULT_DB}?retryWrites=true&w=majority"
 
 redis:
-  HOST: "127.0.0.1"
+  HOST: "31.220.86.255"
   PORT: 6379
   USER: "default"
   PASS: "123456"
   DEFAULT_DB: 0
-  MIN_IDLE_CONN: 10
+  MIN_IDLE_CONN: 100
   POOL_SIZE: 1000
   POOL_TIMEOUT: 1000
 

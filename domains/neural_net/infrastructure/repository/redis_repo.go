@@ -131,7 +131,7 @@ func (n *redisRepo) GetOpenCandlesCache(key string) (candles []ent1.Candle, err 
 	var jsonRes []byte
 	cmd := n.redisClient.Get(n.ctx, key)
 	if err = cmd.Err(); err != nil {
-		return nil, errors.Wrap(err, "privatedataRedisRepo.SetCache.redisClient.SetCache")
+		return nil, errors.Wrap(err, "privatedataRedisRepo.SetCache.redisClient.GetCache")
 	}
 	jsonRes, err = cmd.Bytes()
 	if err != nil {

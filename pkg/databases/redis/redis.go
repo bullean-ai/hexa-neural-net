@@ -27,6 +27,8 @@ func NewRedisClient(ctx context.Context, cfg *config.Config) (db *redis.Client, 
 		MinIdleConns: cfg.Redis.MIN_IDLE_CONN,
 		PoolSize:     cfg.Redis.POOL_SIZE,
 		PoolTimeout:  time.Second * time.Duration(cfg.Redis.POOL_TIMEOUT),
+		DialTimeout:  time.Second * time.Duration(100),
+		ReadTimeout:  time.Second * time.Duration(100),
 		DB:           cfg.Redis.DEFAULT_DB,
 	})
 

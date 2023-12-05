@@ -37,9 +37,9 @@ func main() {
 	// Init Clients
 	redisDB, err := redis.NewRedisClient(ctx, cfg)
 	if err != nil {
-		appLogger.Fatal("Error when tyring to connect to Postgresql")
+		appLogger.Fatal("Error when tyring to connect to Redis")
 	} else {
-		appLogger.Info("Postgresql connected")
+		appLogger.Info("Redis connected")
 	}
 
 	// Init repositories

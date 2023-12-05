@@ -1,6 +1,6 @@
 server:
-  PROJECT_NAME: "Auth Service"
-  SERVICE_NAME: "auth-broker"
+  PROJECT_NAME: "Hexa NeuralNet Service"
+  SERVICE_NAME: "hexa neuralnet"
   APP_ENV: "dev"
   APP_DEBUG: true
   TIMEOUT: 15
