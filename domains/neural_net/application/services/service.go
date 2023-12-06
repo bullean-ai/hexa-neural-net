@@ -43,7 +43,7 @@ func (w *serviceNeuralNet) Train() {
 	iterations := 2200
 	var trainData []entities.Candle
 
-	trainData, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:2500"))
+	trainData, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:10000"))
 
 	//trainData = trainData[600:900]
 	lineData, _, maxIndex := ChartDataRedisParser(trainData, percentage, 0)
@@ -104,7 +104,7 @@ func (w *serviceNeuralNet) Train() {
 		if len(candles) > 0 && candle.Close != candles[len(candles)-1].Close {
 			candles = candles[1:]
 			candles = append(candles, candle)
-			w.Predict(n, trainer, candles[len(candles)-(maxIndex+2):], percentage, commission, maxIndex, &CalculateProfit)
+			Predict(n, trainer, candles[len(candles)-(maxIndex+2):], percentage, commission, maxIndex, &CalculateProfit)
 		}
 	}
 	/*
@@ -117,7 +117,7 @@ func (w *serviceNeuralNet) Train() {
 	*/
 }
 
-func (w *serviceNeuralNet) Predict(
+func Predict(
 	n *Neural,
 	trainer *OnlineTrainer,
 	candles []entities.Candle,
@@ -133,7 +133,7 @@ func (w *serviceNeuralNet) Predict(
 	return
 }
 
-func (w *serviceNeuralNet) PredictAll(
+func PredictAll(
 	n *Neural,
 	trainer *OnlineTrainer,
 	candles []entities.Candle,
