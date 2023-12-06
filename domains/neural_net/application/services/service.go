@@ -37,28 +37,28 @@ func NewNeuralNetService(cfg *config.Config, redisRepo ports.IRedisRepository, l
 func (w *serviceNeuralNet) Train() {
 	rand.Seed(time.Now().UnixNano())
 	//percentage := .0815 // BNBUSDT
-	percentage := .1 // BTCUSDT 0.005
+	percentage := .001 // BTCUSDT 0.005
 	pair := "BTCUSDT"
 	commission := .0
-	iterations := 10
+	iterations := 2200
 	var trainData []entities.Candle
 
-	trainData, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:10000"))
+	trainData, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:2500"))
 
-	//trainData = trainData[2000:]
+	trainData = trainData[600:900]
 	lineData, _, maxIndex := ChartDataRedisParser(trainData, percentage, 0)
 	//maxIndex = int(math.Round(float64(maxIndex) * 1.2))
 	fmt.Println("maxindex: ", maxIndex)
 	n := NewNeural(&entities.Config{
 		Inputs:     maxIndex,
-		Layout:     []int{15, 30, 60, 60, 60, 30, 15, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
-		Activation: entities.ActivationTanh,
+		Layout:     []int{15, 20, 20, 20, 20, 20, 10, 5, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
+		Activation: entities.ActivationSoftmax,
 		Mode:       entities.ModeMultiClass,
-		Weight:     synapse.NewNormal(1e-15, 0),
+		Weight:     synapse.NewNormal(1e-15, 1e-15),
 		Bias:       true,
 	})
 
-	trainer := NewTrainer(solver.NewAdam(0.0005, 0, 0, 1e-15), 1)
+	trainer := NewTrainer(solver.NewAdam(0.00001, 0, 0, 1e-15), 1)
 	trainer.Train(n, lineData, lineData, iterations)
 
 	var candles []entities.Candle
@@ -85,7 +85,7 @@ func (w *serviceNeuralNet) Train() {
 	CalculateProfit.Profit = 100
 	CalculateProfit.Iterations = iterations
 	fmt.Println(candles[len(candles)-1])
-	w.PredictAll(n, trainer, candles, percentage, commission, maxIndex, &CalculateProfit)
+	//w.PredictAll(n, trainer, candles, percentage, commission, maxIndex, &CalculateProfit)
 	//avgProfit, profit, longNum, lastSignal, longPercent, errorRate, testCount = w.Predict(n, trainer, candles[len(candles)-(maxIndex+1):], percentage, 1, avgProfit, profit, longNum, lastSignal, longPercent, errorRate, testCount)
 
 	for range time.Tick(100 * time.Millisecond) {
@@ -381,7 +381,7 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 			if maxI > maxIndex {
 				maxIndex = maxI
 			}
-			if isDone && isDoneCount == 3 {
+			if isDone && isDoneCount == 1 {
 				signalPoints[buyPos] = 1
 				signalPoints[sellPos] = -1
 				isDone = false
@@ -418,7 +418,7 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 			shortSignals = append(shortSignals, 1)
 		}
 	}
-	maxIndex = 2498
+	maxIndex = 110
 	return
 }
 

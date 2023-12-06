@@ -11,10 +11,10 @@ func Init(inputLength int) (*services.Neural, *services.OnlineTrainer) {
 	// Init services
 	neuralNetService := services.NewNeural(&entities.Config{
 		Inputs:     inputLength,
-		Layout:     []int{15, 30, 60, 30, 15, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
-		Activation: entities.ActivationTanh,
+		Layout:     []int{15, 20, 20, 20, 20, 20, 10, 5, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
+		Activation: entities.ActivationSoftmax,
 		Mode:       entities.ModeMultiClass,
-		Weight:     synapse.NewNormal(1e-15, 0),
+		Weight:     synapse.NewNormal(1e-15, 1e-15),
 		Bias:       true,
 	})
 
