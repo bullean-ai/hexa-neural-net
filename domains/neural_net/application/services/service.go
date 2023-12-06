@@ -320,6 +320,23 @@ func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex in
 	return
 }
 
+func NeuralNetOutParser(inputs [][]float64, outs Examples) (Linedata Examples) {
+
+	for i := 0; i < len(inputs); i++ {
+		var inputExample entities.Example
+		inputExample = entities.Example{
+			Input: inputs[i],
+			Response: []float64{
+				outs[i].Response[0],
+				outs[i].Response[1],
+			},
+		}
+		Linedata = append(Linedata, inputExample)
+	}
+
+	return
+}
+
 func CandleToChangePercent(arr []entities.Candle) (changeLine []float64) {
 	for i := 1; i < len(arr); i++ {
 		input := (arr[i].Close - arr[i-1].Close) / arr[i-1].Close * 100
