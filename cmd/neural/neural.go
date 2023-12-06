@@ -18,6 +18,6 @@ func Init(inputLength int) (*services.Neural, *services.OnlineTrainer) {
 		Bias:       true,
 	})
 
-	trainer := services.NewTrainer(solver.NewAdam(0.0001, 0, 0, 1e-15), 1)
+	trainer := services.NewTrainer(solver.NewAdam(0.00001, 0, 0, 1e-15), 1)
 	return neuralNetService, trainer
 }

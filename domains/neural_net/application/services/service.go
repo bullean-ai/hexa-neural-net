@@ -45,7 +45,7 @@ func (w *serviceNeuralNet) Train() {
 
 	trainData, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:2500"))
 
-	trainData = trainData[600:900]
+	//trainData = trainData[600:900]
 	lineData, _, maxIndex := ChartDataRedisParser(trainData, percentage, 0)
 	//maxIndex = int(math.Round(float64(maxIndex) * 1.2))
 	fmt.Println("maxindex: ", maxIndex)
