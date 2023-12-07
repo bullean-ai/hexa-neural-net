@@ -320,7 +320,7 @@ func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex in
 	return
 }
 
-func NeuralNetOutParser(inputs [][]float64, outs Examples, maxIndex int) (Linedata Examples) {
+func NeuralNetOutParser(inputs [][]float64, outs Examples, maxIndex, clusterNum int) (Linedata Examples) {
 
 	for i := maxIndex; i < len(inputs); i++ {
 		var ins []float64
@@ -329,7 +329,7 @@ func NeuralNetOutParser(inputs [][]float64, outs Examples, maxIndex int) (Lineda
 			for _, in := range inputs[j] {
 				average += in
 			}
-			ins = append(ins, average/float64(maxIndex))
+			ins = append(ins, average/float64(clusterNum))
 		}
 		var inputExample entities.Example
 		inputExample = entities.Example{
