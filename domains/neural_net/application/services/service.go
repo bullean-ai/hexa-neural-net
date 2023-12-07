@@ -272,7 +272,7 @@ func ChartDataParser(arr []map[string]interface{}, percentage float64) (Linedata
 		changeLine = append(changeLine, input)
 		//Linedata = append(Linedata, input)
 	}
-	_, longSignals, shortSignals, maxIndex = CalculateMaxPercentageDiffIndexes(changeLine, percentage)
+	_, longSignals, shortSignals, maxIndex = CalculateMaxPercentageDiffIndexes(changeLine, percentage, maxIndex)
 
 	for i := maxIndex; i < len(changeLine); i++ {
 		var inputExample entities.Example
@@ -295,7 +295,7 @@ func ChartDataParser(arr []map[string]interface{}, percentage float64) (Linedata
 func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex int) (Linedata Examples, changeLine []float64, maxIndexRes int) {
 	var longSignals, shortSignals []int
 	changeLine = CandleToChangePercent(arr)
-	_, longSignals, shortSignals, maxIndexRes = CalculateMaxPercentageDiffIndexes(changeLine, percentage)
+	_, longSignals, shortSignals, maxIndexRes = CalculateMaxPercentageDiffIndexes(changeLine, percentage, maxIndex)
 
 	if maxIndex == 0 {
 		maxIndex = maxIndexRes
@@ -346,10 +346,9 @@ func CandleToChangePercent(arr []entities.Candle) (changeLine []float64) {
 	return
 }
 
-func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (signalPoints, longSignals, shortSignals []int, maxIndex int) {
+func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64, maxI int) (signalPoints, longSignals, shortSignals []int, maxIndex int) {
 	indexCount := 0
-	maxIndex = math.MinInt64
-
+	maxIndex = maxI
 	signalPoints = make([]int, len(data))
 	buyPos := len(data) - 2
 	sellPos := len(data) - 1
@@ -363,7 +362,6 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 		for j := i; j < buyPos-1; j++ {
 			buyPercent := .0
 			counter++
-			maxI := math.MinInt64
 			isStarted := false
 			for k := j + 1; k < buyPos; k++ {
 				if isStarted {
@@ -383,7 +381,6 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 					if isDoneCount == 0 {
 						sellPos = k
 					}
-					maxI = sellPos - j
 					counter = 0
 					buyPercent = 0
 					j = k
@@ -395,9 +392,6 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 
 			}
 
-			if maxI > maxIndex {
-				maxIndex = maxI
-			}
 			if isDone && isDoneCount == 1 {
 				signalPoints[buyPos] = 1
 				signalPoints[sellPos] = -1
@@ -435,7 +429,6 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64) (sign
 			shortSignals = append(shortSignals, 1)
 		}
 	}
-	maxIndex = 110
 	return
 }
 
