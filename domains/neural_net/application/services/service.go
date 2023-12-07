@@ -325,11 +325,9 @@ func NeuralNetOutParser(inputs [][]float64, outs Examples, maxIndex, clusterNum 
 	for i := maxIndex; i < len(inputs); i++ {
 		var ins []float64
 		for j := i - maxIndex; j < i; j++ {
-			var average float64
 			for _, in := range inputs[j] {
-				average += in
+				ins = append(ins, in)
 			}
-			ins = append(ins, average/float64(clusterNum))
 		}
 		var inputExample entities.Example
 		inputExample = entities.Example{
