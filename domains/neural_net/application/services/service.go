@@ -398,7 +398,7 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64, maxI 
 
 			}
 
-			if isDone && isDoneCount == 2 {
+			if isDone && isDoneCount == 3 {
 				signalPoints[buyPos] = 1
 				signalPoints[sellPos] = -1
 				isDone = false
