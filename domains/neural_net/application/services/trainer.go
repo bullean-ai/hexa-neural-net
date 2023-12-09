@@ -48,7 +48,7 @@ func newTraining(layers []*layer.Layer) *internal {
 }
 
 // Train trains n
-func (t *OnlineTrainer) Train(n *Neural, examples, validation Examples, iterations int) {
+func (t *OnlineTrainer) Train(n *Neural, examples, validation Examples, iterations int) float64 {
 	t.internal = newTraining(n.Layers)
 
 	train := make(Examples, len(examples))
@@ -56,7 +56,7 @@ func (t *OnlineTrainer) Train(n *Neural, examples, validation Examples, iteratio
 
 	t.printer.Init(n)
 	t.solver.Init(n.NumWeights())
-
+	accuracy := .0
 	ts := time.Now()
 	for i := 1; i <= iterations; i++ {
 		examples.Shuffle()
@@ -65,9 +65,10 @@ func (t *OnlineTrainer) Train(n *Neural, examples, validation Examples, iteratio
 			t.BackPropagate(n, examples[j], i)
 		}
 		if t.verbosity > 0 && i%t.verbosity == 0 && len(validation) > 0 {
-			t.printer.PrintProgress(n, validation, time.Since(ts), i)
+			accuracy = t.printer.PrintProgress(n, validation, time.Since(ts), i)
 		}
 	}
+	return accuracy
 }
 
 func (t *OnlineTrainer) learn(n *Neural, e entities.Example, it int) {
