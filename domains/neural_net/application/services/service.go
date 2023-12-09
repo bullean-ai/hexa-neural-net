@@ -378,7 +378,7 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64, maxI 
 				if minIndex > k-j {
 					minIndex = k - j
 				}
-				if buyPercent > percentage {
+				if buyPercent > percentage && k-j > 10 {
 					if j > 0 {
 						buyPos = j - 1
 					} else {
@@ -398,7 +398,7 @@ func CalculateMaxPercentageDiffIndexes(data []float64, percentage float64, maxI 
 
 			}
 
-			if isDone && isDoneCount == 1 && sellPos-buyPos > 10 {
+			if isDone && isDoneCount == 1 {
 				signalPoints[buyPos] = 1
 				signalPoints[sellPos] = -1
 				isDone = false
