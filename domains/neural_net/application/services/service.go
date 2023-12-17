@@ -37,21 +37,22 @@ func NewNeuralNetService(cfg *config.Config, redisRepo ports.IRedisRepository, l
 func (w *serviceNeuralNet) Train() {
 	rand.Seed(time.Now().UnixNano())
 	//percentage := .0815 // BNBUSDT
-	percentage := .001 // BTCUSDT 0.005
-	pair := "BTCUSDT"
+	percentage := .0008 // BTCUSDT 0.005
+	pair := "BTCFDUSD"
 	commission := .0
-	iterations := 2200
+	iterations := 200
 	var trainData []entities.Candle
 
 	trainData, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:10000"))
+	maxIndex := 1000
 
 	//trainData = trainData[600:900]
-	lineData, _, maxIndex := ChartDataRedisParser(trainData, percentage, 0)
+	lineData, _, maxIndex := ChartDataRedisParser(trainData, percentage, maxIndex)
 	//maxIndex = int(math.Round(float64(maxIndex) * 1.2))
 	fmt.Println("maxindex: ", maxIndex)
 	n := NewNeural(&entities.Config{
 		Inputs:     maxIndex,
-		Layout:     []int{15, 20, 20, 20, 20, 20, 10, 5, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
+		Layout:     []int{15, 30, 30, 40, 30, 15, 5, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
 		Activation: entities.ActivationSoftmax,
 		Mode:       entities.ModeMultiClass,
 		Weight:     synapse.NewNormal(1e-15, 1e-15),
