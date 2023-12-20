@@ -35,19 +35,22 @@ func NewNeuralNetService(cfg *config.Config, redisRepo ports.IRedisRepository, l
 }
 
 func (w *serviceNeuralNet) Train() {
+	var lineData Examples
+	var maxIndex int
 	rand.Seed(time.Now().UnixNano())
 	//percentage := .0815 // BNBUSDT
-	percentage := .0008 // BTCUSDT 0.005
+	percentage := .01 // BTCUSDT 0.005
 	pair := "BTCFDUSD"
 	commission := .0
 	iterations := 200
 	var trainData []entities.Candle
 
 	trainData, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:10000"))
-	maxIndex := 1000
 
 	//trainData = trainData[600:900]
-	lineData, _, maxIndex := ChartDataRedisParser(trainData, percentage, maxIndex)
+	lineData, _, maxIndex = ChartDataRedisParser(trainData, percentage, maxIndex)
+	maxIndex = 300
+
 	//maxIndex = int(math.Round(float64(maxIndex) * 1.2))
 	fmt.Println("maxindex: ", maxIndex)
 	n := NewNeural(&entities.Config{
@@ -89,7 +92,7 @@ func (w *serviceNeuralNet) Train() {
 	//w.PredictAll(n, trainer, candles, percentage, commission, maxIndex, &CalculateProfit)
 	//avgProfit, profit, longNum, lastSignal, longPercent, errorRate, testCount = w.Predict(n, trainer, candles[len(candles)-(maxIndex+1):], percentage, 1, avgProfit, profit, longNum, lastSignal, longPercent, errorRate, testCount)
 
-	for range time.Tick(100 * time.Millisecond) {
+	for range time.Tick(10 * time.Millisecond) {
 		/*
 			candles, _, _, err := w.redisRepo.GetCandlesData("BNBUSDT", 5)
 			if err != nil {
@@ -305,8 +308,12 @@ func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex in
 	for i := maxIndex; i < len(changeLine); i++ {
 		var inputExample entities.Example
 		var inputs []float64
-		for j := 0; j < maxIndex; j++ {
-			inputs = append(inputs, changeLine[i-j])
+		for j := i - maxIndex; j < i; j++ {
+			if longSignals[i] == 1 && j-maxIndex > 0 {
+				inputs = append(inputs, changeLine[j]+inputs[j-1])
+			} else {
+				inputs = append(inputs, changeLine[j])
+			}
 		}
 		inputExample = entities.Example{
 			Input: inputs,
