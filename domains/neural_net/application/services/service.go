@@ -39,40 +39,40 @@ func (w *serviceNeuralNet) Train() {
 	var maxIndex int
 	rand.Seed(time.Now().UnixNano())
 	//percentage := .0815 // BNBUSDT
-	percentage := .01 // BTCUSDT 0.005
+	percentage := .1 // BTCUSDT 0.005
 	pair := "BTCFDUSD"
 	commission := .0
-	iterations := 200
-	var trainData []entities.Candle
+	iterations := 120
+	var trainData []entities.TickCandle
 
-	trainData, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:10000"))
+	trainData, err = w.redisRepo.GetOpenTickersCache(fmt.Sprintf("BINANCE_SPOT:%s:%d:ticker", pair, 10000))
+	maxIndex = 1200
 
 	//trainData = trainData[600:900]
-	lineData, _, maxIndex = ChartDataRedisParser(trainData, percentage, maxIndex)
-	maxIndex = 300
+	lineData, _, _ = ChartDataRedisParser(trainData, percentage, maxIndex, true)
 
 	//maxIndex = int(math.Round(float64(maxIndex) * 1.2))
 	fmt.Println("maxindex: ", maxIndex)
 	n := NewNeural(&entities.Config{
 		Inputs:     maxIndex,
-		Layout:     []int{15, 30, 30, 40, 30, 15, 5, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
+		Layout:     []int{15, 20, 20, 20, 20, 20, 20, 20, 5, 2}, // Sufficient for modeling (AND+OR) - with 5-6 neuron always converges
 		Activation: entities.ActivationSoftmax,
 		Mode:       entities.ModeMultiClass,
 		Weight:     synapse.NewNormal(1e-15, 1e-15),
 		Bias:       true,
 	})
 
-	trainer := NewTrainer(solver.NewAdam(0.00001, 0, 0, 1e-15), 1)
+	trainer := NewTrainer(solver.NewAdam(0.0001, 0, 0, 1e-15), 1)
 	trainer.Train(n, lineData, lineData, iterations)
 
-	var candles []entities.Candle
-	candles, err = w.redisRepo.GetOpenCandlesCache(fmt.Sprintf("%s:%s", pair, "OPEN:2500"))
+	var candles []entities.TickCandle
+	candles, err = w.redisRepo.GetOpenTickersCache(fmt.Sprintf("BINANCE_SPOT:%s:%d:ticker", pair, 2500))
 	//candles, _, _, err := w.redisRepo.GetCandlesData("BTCUSDT", 5)
 	/*
 		for i := 0; i < maxIndex+2; {
 			time.Sleep(100 * time.Millisecond)
 			candle, _, _ := w.redisRepo.GetCandleData(pair)
-			if len(candles) > 0 && candle.Close != candles[len(candles)-1].Close {
+			if len(candles) > 0 && candle.Price != candles[len(candles)-1].Price {
 				candles = append(candles, candle)
 				i++
 				println(i)
@@ -101,11 +101,11 @@ func (w *serviceNeuralNet) Train() {
 		*/
 
 		//avgProfit, profit, longNum, lastSignal, longPercent, errorRate, testCount = w.Predict(n, trainer, candles[len(candles)-(maxIndex+1):], percentage, 1, avgProfit, profit, longNum, lastSignal, longPercent, errorRate, testCount)
-		candle, _, err := w.redisRepo.GetCandleData(pair)
+		candle, _, err := w.redisRepo.GetTickerData(pair)
 		if err != nil {
 			println(err.Error())
 		}
-		if len(candles) > 0 && candle.Close != candles[len(candles)-1].Close {
+		if len(candles) > 0 && candle.Price > 0 && candle.Price != candles[len(candles)-1].Price {
 			candles = candles[1:]
 			candles = append(candles, candle)
 			Predict(n, trainer, candles[len(candles)-(maxIndex+2):], percentage, commission, maxIndex, &CalculateProfit)
@@ -124,14 +124,14 @@ func (w *serviceNeuralNet) Train() {
 func Predict(
 	n *Neural,
 	trainer *OnlineTrainer,
-	candles []entities.Candle,
+	candles []entities.TickCandle,
 	percentage float64,
 	commission float64,
 	maxIndex int,
 	profit *entities.CalculateProfit,
 ) {
 
-	testData, _, _ := ChartDataRedisParser(candles, percentage, maxIndex)
+	testData, _, _ := ChartDataRedisParser(candles, percentage, maxIndex, false)
 	signalRes := testData[len(testData)-1]
 	Calc(n, trainer, candles[len(candles)-1], signalRes, profit, percentage, commission)
 	return
@@ -140,14 +140,14 @@ func Predict(
 func PredictAll(
 	n *Neural,
 	trainer *OnlineTrainer,
-	candles []entities.Candle,
+	candles []entities.TickCandle,
 	percentage float64,
 	commission float64,
 	maxIndex int,
 	profit *entities.CalculateProfit,
 ) {
 
-	testData, _, _ := ChartDataRedisParser(candles, percentage, maxIndex)
+	testData, _, _ := ChartDataRedisParser(candles, percentage, maxIndex, false)
 	fmt.Println(testData)
 	//signalRes := testData[len(testData)-1]
 	for _, signalRes := range testData {
@@ -156,14 +156,14 @@ func PredictAll(
 	return
 }
 
-func Calc(n *Neural, trainer *OnlineTrainer, candle entities.Candle, signalRes entities.Example, profit *entities.CalculateProfit, percentage, commission float64) {
+func Calc(n *Neural, trainer *OnlineTrainer, candle entities.TickCandle, signalRes entities.Example, profit *entities.CalculateProfit, percentage, commission float64) {
 	resp := n.Predict(signalRes.Input)
 	firstRes := signalRes.Response[0]
 	secondRes := signalRes.Response[1]
 	//fmt.Println("last signal: ", profit.LastSignal)
 	if math.Round(resp[0]) == 1 && profit.LastSignal == 1 {
-		profit.AvgProfit = profit.AvgProfit + signalRes.Input[0]
-		profit.LongPercent += signalRes.Input[0]
+		profit.AvgProfit = profit.AvgProfit + signalRes.Input[len(signalRes.Input)-1]
+		profit.LongPercent += signalRes.Input[len(signalRes.Input)-1]
 		profit.ShortSignalInput = append(profit.ShortSignalInput, signalRes)
 		//fmt.Println(fmt.Sprintf("%f", profit.AvgProfit), profit.LongPercent)
 	}
@@ -177,7 +177,7 @@ func Calc(n *Neural, trainer *OnlineTrainer, candle entities.Candle, signalRes e
 	} else if math.Round(resp[1]) == 1 && profit.LastSignal != -1 {
 		profit.LastSignal = -1
 		profit.AvgProfit = profit.AvgProfit + signalRes.Input[0]
-		profit.LongPercent += signalRes.Input[0]
+		profit.LongPercent += signalRes.Input[len(signalRes.Input)-1]
 		profit.Profit += profit.Profit * (profit.LongPercent / 100)
 		bestLongPos := CalcBestLongPos(profit.ShortSignalInput, percentage, commission)
 		if profit.LongPercent < commission && profit.TestCount > 1 {
@@ -192,8 +192,8 @@ func Calc(n *Neural, trainer *OnlineTrainer, candle entities.Candle, signalRes e
 		profit.ShortSignalInput = []entities.Example{signalRes}
 
 		fmt.Println("-----------------------")
-		fmt.Println(fmt.Sprintf("Alım Fiyatı:%f", profit.BuyPrice.Close))
-		fmt.Println(fmt.Sprintf("Satım Fiyatı: %f", profit.SellPrice.Close))
+		fmt.Println(fmt.Sprintf("Alım Fiyatı:%f", profit.BuyPrice.Price))
+		fmt.Println(fmt.Sprintf("Satım Fiyatı: %f", profit.SellPrice.Price))
 		fmt.Println(fmt.Sprintf("Long Percent: %f", profit.LongPercent))
 		fmt.Println("-----------------------")
 
@@ -296,9 +296,13 @@ func ChartDataParser(arr []map[string]interface{}, percentage float64) (Linedata
 
 	return
 }
-func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex int) (Linedata Examples, changeLine []float64, maxIndexRes int) {
+func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxIndex int, isLearning bool) (Linedata Examples, changeLine []float64, maxIndexRes int) {
 	var longSignals, shortSignals []int
-	changeLine = CandleToChangePercent(arr)
+	if isLearning {
+		changeLine = LearnCandleToChangePercent(arr)
+	} else {
+		changeLine = PredictCandleToChangePercent(arr)
+	}
 	_, longSignals, shortSignals, maxIndexRes = CalculateMaxPercentageDiffIndexes(changeLine, percentage, maxIndex)
 
 	if maxIndex == 0 {
@@ -308,12 +312,8 @@ func ChartDataRedisParser(arr []entities.Candle, percentage float64, maxIndex in
 	for i := maxIndex; i < len(changeLine); i++ {
 		var inputExample entities.Example
 		var inputs []float64
-		for j := i - maxIndex; j < i; j++ {
-			if longSignals[i] == 1 && j-maxIndex > 0 {
-				inputs = append(inputs, changeLine[j]+inputs[j-1])
-			} else {
-				inputs = append(inputs, changeLine[j])
-			}
+		for j := i - maxIndex + 1; j <= i; j++ {
+			inputs = append(inputs, changeLine[j])
 		}
 		inputExample = entities.Example{
 			Input: inputs,
@@ -351,9 +351,18 @@ func NeuralNetOutParser(inputs [][]float64, outs Examples, maxIndex, clusterNum 
 	return
 }
 
-func CandleToChangePercent(arr []entities.Candle) (changeLine []float64) {
+func LearnCandleToChangePercent(arr []entities.TickCandle) (changeLine []float64) {
 	for i := 1; i < len(arr); i++ {
-		input := (arr[i].Close - arr[i-1].Close) / arr[i-1].Close * 100
+		input := ((arr[i].Price - arr[i-1].Price) / arr[i-1].Price) * 100
+		changeLine = append(changeLine, input)
+		//Linedata = append(Linedata, input)
+	}
+	return
+}
+
+func PredictCandleToChangePercent(arr []entities.TickCandle) (changeLine []float64) {
+	for i := 1; i < len(arr); i++ {
+		input := ((arr[i].Price - arr[i-1].Price) / arr[i-1].Price) * 100
 		changeLine = append(changeLine, input)
 		//Linedata = append(Linedata, input)
 	}

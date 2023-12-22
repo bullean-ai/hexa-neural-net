@@ -144,6 +144,47 @@ func (n *redisRepo) GetOpenCandlesCache(key string) (candles []ent1.Candle, err 
 	return
 }
 
+// SetCache Setting cache
+func (n *redisRepo) GetOpenTickersCache(key string) (candles []ent1.TickCandle, err error) {
+	var jsonRes []byte
+	cmd := n.redisClient.Get(n.ctx, key)
+	if err = cmd.Err(); err != nil {
+		return nil, errors.Wrap(err, "privatedataRedisRepo.SetCache.redisClient.GetCache")
+	}
+	jsonRes, err = cmd.Bytes()
+	if err != nil {
+		return nil, errors.Wrap(err, "privatedataRedisRepo.SetCache.redisClient.Bytes")
+	}
+	err = json.Unmarshal(jsonRes, &candles)
+	if err != nil {
+		return nil, errors.Wrap(err, "privatedataRedisRepo.SetCache.redisClient.JSON.Unmarshal")
+	}
+	return
+}
+
+func (n *redisRepo) GetTickerData(symbol string) (ent1.TickCandle, string, error) {
+	var candles []ent1.TickCandle
+	var data ent1.TickCandle
+	var err error
+	var jsonRes []byte
+
+	redisKey := fmt.Sprintf("%s:%s:10:ticker", ent1.EXCHANGE_TYPE, symbol)
+	cmd := n.redisClient.Get(n.ctx, redisKey)
+	if err = cmd.Err(); err != nil {
+		return ent1.TickCandle{}, redisKey, errors.Wrap(err, "privatedataRedisRepo.SetCache.redisClient.Get")
+	}
+	jsonRes, err = cmd.Bytes()
+	if err != nil {
+		return ent1.TickCandle{}, redisKey, errors.Wrap(err, "privatedataRedisRepo.SetCache.redisClient.Bytes")
+	}
+	err = json.Unmarshal(jsonRes, &candles)
+	if err != nil {
+		return ent1.TickCandle{}, redisKey, errors.Wrap(err, "privatedataRedisRepo.SetCache.redisClient.JSON.Unmarshal")
+	}
+	data = candles[len(candles)-1]
+	return data, redisKey, nil
+}
+
 // DeleteCache Delete cache
 func (n *redisRepo) DeleteCache(key string) error {
 	if err := n.redisClient.Del(n.ctx, key).Err(); err != nil {

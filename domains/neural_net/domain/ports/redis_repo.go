@@ -10,4 +10,6 @@ type IRedisRepository interface {
 	GetCandlesData(string, int) ([]entities.Candle, int, string, error)
 	GetDepthData(string) (entities.DepthData, string, error)
 	GetOpenCandlesCache(string) ([]entities.Candle, error)
+	GetTickerData(string) (entities.TickCandle, string, error)
+	GetOpenTickersCache(string) ([]entities.TickCandle, error)
 }

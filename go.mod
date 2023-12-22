@@ -1,4 +1,4 @@
-module main
+module github.com/bullean-ai/hexa-neural-net
 
 go 1.21rc3
 
@@ -6,7 +6,6 @@ require (
 	cloud.google.com/go/firestore v1.14.0
 	github.com/ClickHouse/clickhouse-go v1.5.4
 	github.com/arsmn/fiber-swagger/v2 v2.31.1
-	github.com/bullean-ai/hexa-neural-net v1.0.34
 	github.com/denisenkom/go-mssqldb v0.12.3
 	github.com/go-playground/validator/v10 v10.16.0
 	github.com/go-redis/redis/v8 v8.11.5

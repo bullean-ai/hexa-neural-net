@@ -117,6 +117,10 @@ type Candle struct {
 	TakerQuoteVolume float64
 }
 
+type TickCandle struct {
+	Price float64 `json:"price"`
+}
+
 type DepthData struct {
 	Symbol string       `msg:"Symbol"`
 	Bids   []DepthPrice `msg:"Bids"`
@@ -142,16 +146,16 @@ type Example struct {
 	Response []float64
 }
 type CalculateProfit struct {
-	LastSignal       int64     `json:"last_signal"`
-	AvgProfit        float64   `json:"avg_profit"`
-	LongPercent      float64   `json:"long_percent"`
-	LongNum          int64     `json:"long_num"`
-	LongSignalInput  Example   `json:"long_signal_input"`
-	ShortSignalInput []Example `json:"short_signal_input"`
-	Profit           float64   `json:"profit"`
-	ErrorRate        int64     `json:"error_rate"`
-	TestCount        int64     `json:"test_count"`
-	BuyPrice         Candle    `json:"buy_price"`
-	SellPrice        Candle    `json:"sell_price"`
-	Iterations       int       `json:"iterations"`
+	LastSignal       int64      `json:"last_signal"`
+	AvgProfit        float64    `json:"avg_profit"`
+	LongPercent      float64    `json:"long_percent"`
+	LongNum          int64      `json:"long_num"`
+	LongSignalInput  Example    `json:"long_signal_input"`
+	ShortSignalInput []Example  `json:"short_signal_input"`
+	Profit           float64    `json:"profit"`
+	ErrorRate        int64      `json:"error_rate"`
+	TestCount        int64      `json:"test_count"`
+	BuyPrice         TickCandle `json:"buy_price"`
+	SellPrice        TickCandle `json:"sell_price"`
+	Iterations       int        `json:"iterations"`
 }
