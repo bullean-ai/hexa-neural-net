@@ -8,10 +8,10 @@ import (
 
 // Neuron is a neural network node
 type Neuron struct {
-	A     entities.ActivationType `json:"-"`
+	A     entities.ActivationType
 	In    []*synapse.Synapse
 	Out   []*synapse.Synapse
-	Value float64 `json:"-"`
+	Value float64
 }
 
 // NewNeuron returns a neuron with the given activation
