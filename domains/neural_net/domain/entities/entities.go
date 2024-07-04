@@ -70,7 +70,7 @@ type Config struct {
 	// Solver modes: {ModeRegression, ModeBinary, ModeMultiClass, ModeMultiLabel}
 	Mode Mode
 	// Initializer for weights: {NewNormal(σ, μ), NewUniform(σ, μ)}
-	Weight synapse.WeightInitializer `json:"-"`
+	Weight synapse.WeightInitializer
 	// Loss functions: {LossCrossEntropy, LossBinaryCrossEntropy, LossMeanSquared}
 	Loss LossType
 	// Apply bias nodes
