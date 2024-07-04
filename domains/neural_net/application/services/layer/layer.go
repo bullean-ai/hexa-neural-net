@@ -20,9 +20,6 @@ func NewLayer(n int, activation entities.ActivationType) *Layer {
 
 	for i := 0; i < n; i++ {
 		act := activation
-		if activation == entities.ActivationSoftmax {
-			act = entities.ActivationLinear
-		}
 		neurons[i] = neuron.NewNeuron(act)
 	}
 	return &Layer{
