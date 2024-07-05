@@ -308,7 +308,7 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 	lookForward := 20
 	for i := lookForward; i < len(changeLine)-lookForward; i++ {
 		for j := i; j <= i+lookForward; j++ {
-			if longSignals[i] == 0 && longSignals[j] == 1 {
+			if longSignals[i] == 0 && longSignals[i-1] == 1 && longSignals[j] == 1 {
 				longSignals[i] = 1
 				shortSignals[i] = 0
 				break
