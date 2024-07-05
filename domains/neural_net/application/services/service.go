@@ -315,6 +315,14 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 		for j := i - maxIndex + 1; j <= i; j++ {
 			inputs = append(inputs, changeLine[j])
 		}
+
+		for j := i; j <= i+5; j++ {
+			if longSignals[i] == 0 && longSignals[j] == 1 {
+				longSignals[i] = 1
+				shortSignals[i] = 0
+			}
+		}
+
 		inputExample = entities.Example{
 			Input: inputs,
 			Response: []float64{
