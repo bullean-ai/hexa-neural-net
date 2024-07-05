@@ -305,6 +305,18 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 	}
 	_, longSignals, shortSignals, maxIndexRes = CalculateMaxPercentageDiffIndexes(changeLine, percentage, maxIndex)
 
+	lookForward := 20
+	for i := lookForward; i < len(changeLine); i++ {
+		if i+lookForward < len(longSignals)-1 {
+			for j := i; j <= i+lookForward; j++ {
+				if longSignals[i] == 0 && longSignals[j] == 1 {
+					longSignals[i] = 1
+					shortSignals[i] = 0
+					break
+				}
+			}
+		}
+	}
 	if maxIndex == 0 {
 		maxIndex = maxIndexRes
 	}
@@ -316,16 +328,6 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 			inputs = append(inputs, changeLine[j])
 		}
 
-		lookforward := 20
-		if i+lookforward < len(longSignals)-1 {
-			for j := i; j <= i+lookforward; j++ {
-				if longSignals[i] == 0 && longSignals[j] == 1 {
-					longSignals[i] = 1
-					shortSignals[i] = 0
-					break
-				}
-			}
-		}
 		inputExample = entities.Example{
 			Input: inputs,
 			Response: []float64{
