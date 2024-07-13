@@ -319,7 +319,7 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 		maxIndex = maxIndexRes
 	}
 
-	for i := maxIndex; i < len(changeLine); i++ {
+	for i := maxIndex; i < len(changeLine)-1; i++ {
 		var inputExample entities.Example
 		var inputs []float64
 		for j := i - maxIndex + 1; j <= i; j++ {
@@ -331,6 +331,7 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 			Response: []float64{
 				float64(longSignals[i]),
 				float64(shortSignals[i]),
+				(changeLine[i+1] - changeLine[i]) / changeLine[i] * 100,
 			},
 		}
 		Linedata = append(Linedata, inputExample)
