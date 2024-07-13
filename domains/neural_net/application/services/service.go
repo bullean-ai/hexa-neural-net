@@ -331,7 +331,7 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 			Response: []float64{
 				float64(longSignals[i]),
 				float64(shortSignals[i]),
-				((changeLine[i+1] - changeLine[i]) / changeLine[i]) * 100,
+				changeLine[i+1],
 			},
 		}
 		Linedata = append(Linedata, inputExample)
