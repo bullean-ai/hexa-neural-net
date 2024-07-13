@@ -324,7 +324,7 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 		var inputs []float64
 		var direction int64
 
-		if changeLine[i+1] >= 0 {
+		if longSignals[i+1] == 1 {
 			direction = 1
 		} else {
 			direction = -1
