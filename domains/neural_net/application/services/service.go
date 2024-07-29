@@ -7,6 +7,7 @@ import (
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/application/services/solver"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/domain/entities"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/domain/ports"
+	"github.com/bullean-ai/hexa-neural-net/domains/q-learning/application/services"
 	"github.com/bullean-ai/hexa-neural-net/pkg/logger"
 	"github.com/bullean-ai/hexa-neural-net/pkg/utils/typeconv"
 	"math"
@@ -35,6 +36,7 @@ func NewNeuralNetService(cfg *config.Config, redisRepo ports.IRedisRepository, l
 }
 
 func (w *serviceNeuralNet) Train() {
+	services.AllStatesGenerator(10)
 	var lineData Examples
 	var maxIndex int
 	rand.Seed(time.Now().UnixNano())

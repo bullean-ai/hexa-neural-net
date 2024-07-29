@@ -37,7 +37,7 @@ func main() {
 	// Init Clients
 	redisDB, err := redis.NewRedisClient(ctx, cfg)
 	if err != nil {
-		appLogger.Fatal("Error when tyring to connect to Redis")
+		appLogger.Info("Error when tyring to connect to Redis")
 	} else {
 		appLogger.Info("Redis connected")
 	}
