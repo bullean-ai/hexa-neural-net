@@ -523,11 +523,11 @@ func init() {
 			} else {
 				data = append(data, sellArr[i-j])
 			}
-			if i == j+99 {
+			if i == j+98 {
 				if percentages[j] > 0 {
-					signal = 1
+					signal = buyArr[i-j]
 				} else {
-					signal = -1
+					signal = sellArr[i-j]
 				}
 			}
 		}
