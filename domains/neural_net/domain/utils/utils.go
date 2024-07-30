@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"fmt"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/application/services/layer/neuron/synapse/activation"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/domain/entities"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/domain/ports"
 	"math"
+	"math/rand"
 	"strings"
 )
 
@@ -234,14 +234,17 @@ func MinValue(values []float64) (result float64, index int) {
 	return
 }
 
-func AllStatesGenerator(state_len int) (states map[string]int64) {
-	precision := 1000000.0
-	for i := 0; i < state_len*3; i++ {
-		_, isOk := states["buy"]
-		if !isOk {
-			states[i] = make(map[string]int64)
-		}
-		fmt.Println(math.Round(rand.Float64() * precision))
+func GenerateSignalMap(length int) (mapping map[int64]int64, buyArr, sellArr []int64) {
+	mapping = make(map[int64]int64)
+	for i := 0; i < length; i++ {
+		key := int64(rand.Float64() * 1000000)
+		mapping[key] = 1
+		buyArr = append(buyArr, key)
+	}
+	for i := 0; i < length; i++ {
+		key := int64(rand.Float64() * 1000000)
+		mapping[key] = -1
+		sellArr = append(sellArr, key)
 
 	}
 	return
