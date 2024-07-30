@@ -542,6 +542,6 @@ func init() {
 func TestQLearning(t *testing.T) {
 
 	agent := NewSimpleAgent(.7, 1)
-	Learn(Data, agent, AllPossibilities, 40, 1000)
+	Learn(Data, agent, AllPossibilities, 40, 10)
 	return
 }

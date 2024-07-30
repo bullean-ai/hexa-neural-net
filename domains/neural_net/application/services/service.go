@@ -322,13 +322,6 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 	for i := maxIndex; i < len(changeLine)-1; i++ {
 		var inputExample entities.Example
 		var inputs []float64
-		var direction int64
-
-		if longSignals[i+1] == 1 {
-			direction = 1
-		} else {
-			direction = -1
-		}
 
 		for j := i - maxIndex + 1; j <= i; j++ {
 			inputs = append(inputs, changeLine[j])
@@ -339,7 +332,6 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 			Response: []float64{
 				float64(longSignals[i]),
 				float64(shortSignals[i]),
-				float64(direction),
 			},
 		}
 		Linedata = append(Linedata, inputExample)
