@@ -3,8 +3,8 @@ package postgresql
 import (
 	"context"
 	"fmt"
+	"github.com/bullean-ai/hexa-neural-net/config"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"main/config"
 )
 
 var (
