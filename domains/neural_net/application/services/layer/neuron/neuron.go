@@ -11,7 +11,7 @@ type Neuron struct {
 	A     entities.ActivationType
 	In    []*synapse.Synapse
 	Out   []*synapse.Synapse
-	Value float64
+	Value *float64
 }
 
 // NewNeuron returns a neuron with the given activation
@@ -24,7 +24,7 @@ func NewNeuron(activation entities.ActivationType) *Neuron {
 func (n *Neuron) Fire() {
 	var sum float64
 	for _, s := range n.In {
-		sum += s.Out
+		sum += *s.Out
 	}
 	n.Value = n.Activate(sum)
 
@@ -35,8 +35,9 @@ func (n *Neuron) Fire() {
 }
 
 // Activate applies the neurons activation
-func (n *Neuron) Activate(x float64) float64 {
-	return utils.GetActivation(n.A).F(x)
+func (n *Neuron) Activate(x float64) *float64 {
+	dfVal := utils.GetActivation(n.A).F(x)
+	return &dfVal
 }
 
 // DActivate applies the derivative of the neurons activation

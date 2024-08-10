@@ -89,18 +89,18 @@ func (t *OnlineTrainer) BackPropagate(n *Neural, e entities.Example, it int) {
 func (t *OnlineTrainer) calculateDeltas(n *Neural, ideal []float64) {
 	for i, neuron := range n.Layers[len(n.Layers)-1].Neurons {
 		t.deltas[len(n.Layers)-1][i] = GetLoss(n.Config.Loss).Df(
-			neuron.Value,
+			*neuron.Value,
 			ideal[i],
-			neuron.DActivate(neuron.Value))
+			neuron.DActivate(*neuron.Value))
 	}
 
 	for i := len(n.Layers) - 2; i >= 0; i-- {
 		for j, neuron := range n.Layers[i].Neurons {
 			var sum float64
 			for k, s := range neuron.Out {
-				sum += s.Weight * t.deltas[i+1][k]
+				sum += (*s.Weight) * (t.deltas[i+1][k])
 			}
-			t.deltas[i][j] = neuron.DActivate(neuron.Value) * sum
+			t.deltas[i][j] = neuron.DActivate(*neuron.Value) * sum
 		}
 	}
 }
@@ -110,11 +110,12 @@ func (t *OnlineTrainer) update(n *Neural, it int) {
 	for i, l := range n.Layers {
 		for j := range l.Neurons {
 			for k := range l.Neurons[j].In {
-				update := t.solver.Update(l.Neurons[j].In[k].Weight,
-					t.deltas[i][j]*l.Neurons[j].In[k].In,
+				update := t.solver.Update(*l.Neurons[j].In[k].Weight,
+					t.deltas[i][j]*(*l.Neurons[j].In[k].In),
 					it,
 					idx)
-				l.Neurons[j].In[k].Weight += update
+				sum := update + (*l.Neurons[j].In[k].Weight)
+				l.Neurons[j].In[k].Weight = &sum
 				idx++
 			}
 		}
