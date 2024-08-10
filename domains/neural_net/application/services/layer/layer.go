@@ -58,6 +58,19 @@ func (l *Layer) Connect(next *Layer, weight synapse.WeightInitializer) {
 	}
 }
 
+func (l *Layer) ConnectPrepared(next *Layer) {
+	for i := range l.Neurons {
+		for j := range next.Neurons {
+			for k := 0; k < len(l.Neurons[i].In); k++ {
+				syn := l.Neurons[i].Out[k]
+				if syn.InIndex == i && syn.OutIndex == j {
+					next.Neurons[j].In[syn.OutIndex] = l.Neurons[i].Out[syn.InIndex]
+				}
+			}
+		}
+	}
+}
+
 // ApplyBias creates and returns a bias synapse for each neuron in l
 func (l *Layer) ApplyBias(weight synapse.WeightInitializer) []*synapse.Synapse {
 	biases := make([]*synapse.Synapse, len(l.Neurons))
