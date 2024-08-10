@@ -61,7 +61,7 @@ func (l *Layer) Connect(next *Layer, weight synapse.WeightInitializer) {
 func (l *Layer) ConnectPrepared(next *Layer) {
 	for i := range l.Neurons {
 		for j := range next.Neurons {
-			for k := 0; k < len(l.Neurons[i].In); k++ {
+			for k := 0; k < len(l.Neurons[i].Out); k++ {
 				syn := l.Neurons[i].Out[k]
 				if syn.InIndex == i && syn.OutIndex == j {
 					next.Neurons[j].In[syn.OutIndex] = l.Neurons[i].Out[syn.InIndex]
