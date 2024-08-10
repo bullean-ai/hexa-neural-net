@@ -50,10 +50,10 @@ func (l *Layer) Connect(next *Layer, weight synapse.WeightInitializer) {
 	for i := range l.Neurons {
 		for j := range next.Neurons {
 			syn := synapse.NewSynapse(weight())
+			syn.InIndex = i
+			syn.OutIndex = j
 			l.Neurons[i].Out = append(l.Neurons[i].Out, syn)
-			l.Neurons[i].Index = j
 			next.Neurons[j].In = append(next.Neurons[j].In, syn)
-			next.Neurons[j].Index = i
 		}
 	}
 }
