@@ -16,7 +16,7 @@ func (n *Neural) ApplyWeights(weights [][][]float64) {
 	for i, l := range n.Layers {
 		for j := range l.Neurons {
 			for k := range l.Neurons[j].In {
-				n.Layers[i].Neurons[j].In[k].Weight = &weights[i][j][k]
+				n.Layers[i].Neurons[j].In[k].Weight = weights[i][j][k]
 			}
 		}
 	}
@@ -30,7 +30,7 @@ func (n Neural) Weights() [][][]float64 {
 		for j, n := range l.Neurons {
 			weights[i][j] = make([]float64, len(n.In))
 			for k, in := range n.In {
-				weights[i][j][k] = *in.Weight
+				weights[i][j][k] = in.Weight
 			}
 		}
 	}

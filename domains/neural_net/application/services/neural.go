@@ -82,8 +82,7 @@ func initializeLayers(c *entities.Config) []*layer.Layer {
 func (n *Neural) Fire() {
 	for _, b := range n.Biases {
 		for _, s := range b {
-			fireParam := 1.0
-			s.Fire(&fireParam)
+			s.Fire(1)
 		}
 	}
 	for _, l := range n.Layers {
@@ -98,7 +97,7 @@ func (n *Neural) Forward(input []float64) error {
 	}
 	for _, n := range n.Layers[0].Neurons {
 		for i := 0; i < len(input); i++ {
-			n.In[i].Fire(&input[i])
+			n.In[i].Fire(input[i])
 		}
 	}
 	n.Fire()
@@ -112,7 +111,7 @@ func (n *Neural) Predict(input []float64) []float64 {
 	outLayer := n.Layers[len(n.Layers)-1]
 	out := make([]float64, len(outLayer.Neurons))
 	for i, neuron := range outLayer.Neurons {
-		out[i] = *neuron.Value
+		out[i] = neuron.Value
 	}
 	return out
 }

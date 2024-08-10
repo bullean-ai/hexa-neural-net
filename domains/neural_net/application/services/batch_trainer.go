@@ -137,9 +137,9 @@ func (t *BatchTrainer) calculateDeltas(n *Neural, ideal []float64, wid int) {
 
 	for i, n := range n.Layers[len(n.Layers)-1].Neurons {
 		lastDeltas[i] = loss.Df(
-			*n.Value,
+			n.Value,
 			ideal[i],
-			n.DActivate(*n.Value))
+			n.DActivate(n.Value))
 	}
 
 	for i := len(n.Layers) - 2; i >= 0; i-- {
@@ -149,9 +149,9 @@ func (t *BatchTrainer) calculateDeltas(n *Neural, ideal []float64, wid int) {
 		for j, n := range l.Neurons {
 			var sum float64
 			for k, s := range n.Out {
-				sum += (*s.Weight) * nextD[k]
+				sum += s.Weight * nextD[k]
 			}
-			iD[j] = n.DActivate(*n.Value) * sum
+			iD[j] = n.DActivate(n.Value) * sum
 		}
 	}
 
@@ -162,7 +162,7 @@ func (t *BatchTrainer) calculateDeltas(n *Neural, ideal []float64, wid int) {
 			jD := iD[j]
 			jPD := iPD[j]
 			for k, s := range n.In {
-				jPD[k] += jD * (*s.In)
+				jPD[k] += jD * s.In
 			}
 		}
 	}
@@ -175,12 +175,11 @@ func (t *BatchTrainer) update(n *Neural, it int) {
 		for j, n := range l.Neurons {
 			jAD := iAD[j]
 			for k, s := range n.In {
-				update := t.solver.Update(*s.Weight,
+				update := t.solver.Update(s.Weight,
 					jAD[k],
 					it,
 					idx)
-				sum := (*s.Weight) + update
-				s.Weight = &sum
+				s.Weight += update
 				jAD[k] = 0
 				idx++
 			}
