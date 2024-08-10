@@ -64,7 +64,7 @@ func (l *Layer) ConnectPrepared(next *Layer) {
 			for k := 0; k < len(l.Neurons[i].Out); k++ {
 				syn := l.Neurons[i].Out[k]
 				if syn.InIndex == i && syn.OutIndex == j {
-					next.Neurons[j].In[syn.OutIndex] = l.Neurons[i].Out[syn.InIndex]
+					next.Neurons[syn.OutIndex].In[k] = l.Neurons[i].Out[k]
 				}
 			}
 		}
