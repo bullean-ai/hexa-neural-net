@@ -2,10 +2,10 @@ package synapse
 
 // Synapse is an edge between neurons
 type Synapse struct {
-	Weight            float64
-	In, Out           float64
-	IsBias            bool
-	InIndex, OutIndex int
+	Id      int
+	Weight  float64
+	In, Out float64
+	IsBias  bool
 }
 
 // NewSynapse returns a synapse with the specified initialized weight
