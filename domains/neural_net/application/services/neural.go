@@ -79,6 +79,15 @@ func initializeLayers(c *entities.Config) []*layer.Layer {
 	return layers
 }
 
+func ConnectPreparedNeural(neural *Neural) {
+
+	for i := 0; i < len(neural.Layers)-1; i++ {
+		neural.Layers[i].ConnectPrepared(neural.Layers[i+1])
+	}
+
+	return
+}
+
 func (n *Neural) Fire() {
 	for _, b := range n.Biases {
 		for _, s := range b {

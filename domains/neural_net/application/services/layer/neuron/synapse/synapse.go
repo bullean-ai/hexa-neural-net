@@ -2,6 +2,7 @@ package synapse
 
 // Synapse is an edge between neurons
 type Synapse struct {
+	Id      int
 	Weight  float64
 	In, Out float64
 	IsBias  bool

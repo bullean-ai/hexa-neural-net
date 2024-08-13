@@ -12,6 +12,7 @@ type Neuron struct {
 	In    []*synapse.Synapse
 	Out   []*synapse.Synapse
 	Value float64
+	Index int
 }
 
 // NewNeuron returns a neuron with the given activation

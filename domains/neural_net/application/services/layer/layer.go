@@ -47,11 +47,28 @@ func (l *Layer) Fire() {
 // Connect fully connects layer l to next, and initializes each
 // synapse with the given weight function
 func (l *Layer) Connect(next *Layer, weight synapse.WeightInitializer) {
+	synapseId := 0
 	for i := range l.Neurons {
 		for j := range next.Neurons {
 			syn := synapse.NewSynapse(weight())
+			syn.Id = synapseId
 			l.Neurons[i].Out = append(l.Neurons[i].Out, syn)
 			next.Neurons[j].In = append(next.Neurons[j].In, syn)
+			synapseId += 1
+		}
+	}
+}
+
+func (l *Layer) ConnectPrepared(next *Layer) {
+	for i := range l.Neurons {
+		for j := range next.Neurons {
+			for k := 0; k < len(l.Neurons[i].Out); k++ {
+				for m := 0; m < len(next.Neurons[j].In); m++ {
+					if l.Neurons[i].Out[k].Id == next.Neurons[j].In[m].Id {
+						next.Neurons[j].In[m] = l.Neurons[i].Out[k]
+					}
+				}
+			}
 		}
 	}
 }
