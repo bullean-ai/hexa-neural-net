@@ -324,7 +324,6 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 			}
 		}
 	}
-
 	if maxIndex == 0 {
 		maxIndex = maxIndexRes
 	}

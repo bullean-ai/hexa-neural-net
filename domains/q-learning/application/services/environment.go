@@ -225,10 +225,3 @@ func Learn(allStates []StateData, agent *SimpleAgent, allPossibilities map[int64
 
 	return agent
 }
-
-func Predict(state StateData, agent *SimpleAgent, allPossibilities map[int64]int64, lives int) (prediction int64) {
-	game := NewGame(state, false, allPossibilities, lives)
-	action := Next(agent, game)
-
-	return action.Action.Int()
-}
