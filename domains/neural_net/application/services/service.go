@@ -7,7 +7,6 @@ import (
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/application/services/solver"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/domain/entities"
 	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/domain/ports"
-	"github.com/bullean-ai/hexa-neural-net/domains/q-learning/application/services"
 	"github.com/bullean-ai/hexa-neural-net/pkg/logger"
 	"github.com/bullean-ai/hexa-neural-net/pkg/utils/typeconv"
 	"math"
@@ -36,7 +35,6 @@ func NewNeuralNetService(cfg *config.Config, redisRepo ports.IRedisRepository, l
 }
 
 func (w *serviceNeuralNet) Train() {
-	services.AllStatesGenerator(10)
 	var lineData Examples
 	var maxIndex int
 	rand.Seed(time.Now().UnixNano())
@@ -317,7 +315,6 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 			}
 		}
 	}
-
 	for i := lookForward; i < len(changeLine)-lookForward; i++ {
 		for j := i; j <= i+lookForward; j++ {
 			if shortSignals[i] == 0 && shortSignals[i-1] == 1 && shortSignals[j] == 1 {
@@ -334,13 +331,6 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 	for i := maxIndex; i < len(changeLine)-1; i++ {
 		var inputExample entities.Example
 		var inputs []float64
-		var direction int64
-
-		if longSignals[i+1] == 1 {
-			direction = 1
-		} else {
-			direction = -1
-		}
 
 		for j := i - maxIndex + 1; j <= i; j++ {
 			inputs = append(inputs, changeLine[j])
@@ -351,7 +341,6 @@ func ChartDataRedisParser(arr []entities.TickCandle, percentage float64, maxInde
 			Response: []float64{
 				float64(longSignals[i]),
 				float64(shortSignals[i]),
-				float64(direction),
 			},
 		}
 		Linedata = append(Linedata, inputExample)
