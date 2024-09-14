@@ -4,7 +4,7 @@
 package ascii
 
 import (
-	"github.com/stuartcarnie/go-simd/domain/cpu"
+	"github.com/bullean-ai/hexa-neural-net/domains/neural_net/application/services/simd/golib/cpu"
 )
 
 func init() {
